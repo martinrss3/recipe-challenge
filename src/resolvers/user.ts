@@ -6,16 +6,18 @@ import {
   Ctx,
   Field,
   InputType,
+  Int,
   Mutation,
   ObjectType,
   Query,
   Resolver,
   UseMiddleware,
 } from "type-graphql";
+import { getConnection } from "typeorm";
 import { User } from "../entities/User";
+import { createRefreshToken } from "./auth";
 import { isAuth } from "./isAuth";
 import { sendRefreshToken } from "./sendRefreshToken";
-import { createRefreshToken } from "./auth";
 
 @ObjectType()
 class LoginResponse {
@@ -50,6 +52,15 @@ export class UserResolver {
   @Query(() => User)
   getAUser(@Arg("id") id: number) {
     return User.findOne({ where: { id } });
+  }
+
+  @Mutation(() => Boolean)
+  async revokeRefreshTokensForUser(@Arg("userId", () => Int) userId: number) {
+    await getConnection()
+      .getRepository(User)
+      .increment({ id: userId }, "tokenVersion", 1);
+
+    return true;
   }
 
   // @Mutation(() => Boolean)
