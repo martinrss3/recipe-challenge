@@ -39,19 +39,18 @@ export class UserInput {
 export class UserResolver {
   @Query(() => String)
   @UseMiddleware(isAuth)
-  bye(@Ctx() { payload }: MyContext) {
-    console.log(payload);
-    return `your user id is: ${payload!.userId}`;
+  async me(@Ctx() { payload }: MyContext) {
+    return await `your user id is: ${payload!.userId}`;
   }
 
   @Query(() => [User])
-  getUsers() {
-    return User.find();
+  async getUsers() {
+    return await User.find();
   }
 
   @Query(() => User)
-  getAUser(@Arg("id") id: number) {
-    return User.findOne({ where: { id } });
+  async getAUser(@Arg("id") id: number) {
+    return await User.findOne({ where: { id } });
   }
 
   @Mutation(() => Boolean)
